@@ -63,6 +63,11 @@ export default class AppComponent extends Vue {
 		return this.allTodosFinished;
 	}
 
+	// Set all ToDos `finished` status.
+	public set areAllFinished( finished: boolean ){
+		ToDos.updateMany( {}, { finished } ).then( () => this.refreshToDoSearches() );
+	}
+
 	// ## Unfinished ToDos
 	// Used in the footer's text
 	public leftTodos = 0;
