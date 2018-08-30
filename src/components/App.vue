@@ -27,9 +27,9 @@
 			<span class="todo-count"><strong>{{leftTodos}}</strong> {{leftTodosLabel}} left</span>
 
 			<ul class="filters">
-				<li><a href="/#/" >All</a></li>
-				<li><a href="/#/active">Active</a></li>
-				<li><a href="/#/completed">Completed</a></li>
+				<li><router-link to="/" exact-active-class="selected">All</router-link></li>
+				<li><router-link to="/active" exact-active-class="selected">Active</router-link></li>
+				<li><router-link to="/completed" exact-active-class="selected">Completed</router-link></li>
 			</ul>
 			<!-- Hidden if no completed items are left ↓ -->
 			<button class="clear-completed" @click="clearCompleted">Clear completed</button>
@@ -38,18 +38,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Watch } from 'vue-property-decorator';
+import { Route } from 'vue-router';
 import { Entity, Set } from '@diaspora/diaspora';
 
+import { EDisplayMode } from '../router/EDisplayMode';
 import { ToDos, ITodo } from '../dataStore';
 import TodoItemComponent from './TodoItem.vue';
-
-// Display modes of the app. It is used to filter ToDos
-enum EDisplayMode{
-	FINISHED = 1,
-	UNFINISHED = 2,
-	ALL = EDisplayMode.FINISHED & EDisplayMode.UNFINISHED,
-}
 
 @Component( {
 	components: { TodoItemComponent },
@@ -148,6 +143,24 @@ export default class AppComponent extends Vue {
 		this.leftTodos = leftTodos.length;
 	}
 
+	// # Routing
+
+	// Current route used by the app. See `../router/index.ts`.
+	public $route!: Route;
+
+	// Every time the route change:
+	// * set the `displayMode` property to the one configured on the route
+	// * then refresh the ToDos lists
+	@Watch( '$route' )
+	private async onRouteChanged(){
+		if ( this.$route.matched && this.$route.matched.length === 1 ){
+			const matched = this.$route.matched[0];
+			this.displayMode = ( matched.props as {default: {displayMode: EDisplayMode}} ).default.displayMode;
+		}
+		await this.refreshToDoSearches();
+	}
+
+
 	// # ToDos creation
 
 	// Model property that contains the label of the ToDo we are creating
@@ -182,7 +195,7 @@ export default class AppComponent extends Vue {
 			{ label: 'Check the documentation', finished: true },
 			{ label: 'Finish the tutorial', finished: false },
 		] );
-		await this.refreshToDoSearches();
+		await this.onRouteChanged();
 	}
 }
 </script>
