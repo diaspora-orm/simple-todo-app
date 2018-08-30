@@ -1,4 +1,4 @@
-import { Diaspora } from '@diaspora/diaspora';
+import { Diaspora, EFieldType } from '@diaspora/diaspora';
 
 // Initialize the data source
 Diaspora.createNamedDataSource( 'main', 'inMemory' );
@@ -9,3 +9,18 @@ export interface ITodo{
 	label: string;
 	finished: boolean;
 }
+
+// Define & export the Model
+export const ToDos = Diaspora.declareModel<ITodo>( 'ToDos', {
+	sources: 'main',
+	attributes: {
+		label: {
+			type: EFieldType.STRING,
+			required: true,
+		},
+		finished: {
+			type: EFieldType.BOOLEAN,
+			default: false,
+		},
+	},
+} );
