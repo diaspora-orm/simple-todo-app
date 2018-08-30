@@ -13,10 +13,12 @@
 			<ul class="todo-list">
 				<!-- Iterate on each ToDo. Because the `ID` depends on the source, -->
 				<!-- we have to specify which datasource's ID we should bind to.   -->
+				<!-- When the item emits the `refresh` event, reload ToDos lists   -->
 				<todo-item-component
 					v-for="todo in displayedTodos.entities"
 					:todo="todo"
-					v-bind:key="todo.getId('main')"></todo-item-component>
+					v-bind:key="todo.getId('main')"
+					@refresh="refreshToDoSearches"></todo-item-component>
 			</ul>
 		</section>
 		<!-- This footer should be hidden by default and shown when there are todos -->
