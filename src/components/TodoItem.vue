@@ -30,12 +30,26 @@ export default class TodoItemComponent extends Vue {
 		return this.todo.attributes.label;
 	}
 
-	// Handy getter for the ToDo's finished state
+
+	// # ToDo edition
+	
+	// ## `finished` toggling
+	// Those are just handy shorthands to get/set the ToDo property, and persist it if required
 	public get finished(){
 		if ( !this.todo.attributes ){
 			throw new Error( 'Entity is in invalid state' );
 		}
 		return this.todo.attributes.finished;
+	}
+	public set finished( finished: boolean ){
+		if ( !this.todo.attributes ){
+			throw new Error( 'Entity is in invalid state' );
+		}
+		this.todo.attributes.finished = finished;
+		// Once the status is set, save then ask the app to reload its lists
+		this.todo.persist().then( () => {
+			this.$emit( 'refresh' );
+		} );
 	}
 }
 </script>
