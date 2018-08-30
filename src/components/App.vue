@@ -32,11 +32,22 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 
+import { ToDos } from '../dataStore';
 import TodoItemComponent from './TodoItem.vue';
 
 @Component( {
 	components: { TodoItemComponent },
 } )
 export default class AppComponent extends Vue {
+	// # Initialization
+
+	// When starting up the app, insert fake data
+	public async mounted(){
+		await ToDos.insertMany( [
+			{ label: 'Check the documentation', finished: true },
+			{ label: 'Finish the tutorial', finished: false },
+		] );
+		// TODO: Do searches with the model...
+	}
 }
 </script>
