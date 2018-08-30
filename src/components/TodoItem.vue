@@ -24,8 +24,15 @@ export default class TodoItemComponent extends Vue {
 	@Prop( { required: true } )
 	public todo!: Entity<ITodo>;
 
+	// Flag to avoid errors when entity is deleted
+	private deleted = false;
+
 	// Handy getter for the ToDo's label
 	public get label(){
+		// Trap the error on deletion
+		if ( this.deleted ){
+			return '';
+		}
 		if ( !this.todo.attributes ){
 			throw new Error( 'Entity is in invalid state' );
 		}
@@ -42,6 +49,10 @@ export default class TodoItemComponent extends Vue {
 	// ## `finished` toggling
 	// Those are just handy shorthands to get/set the ToDo property, and persist it if required
 	public get finished(){
+		// Trap the error on deletion
+		if ( this.deleted ){
+			return true;
+		}
 		if ( !this.todo.attributes ){
 			throw new Error( 'Entity is in invalid state' );
 		}
@@ -102,6 +113,7 @@ export default class TodoItemComponent extends Vue {
 
 	// # ToDo removal
 	public async removeTodo(){
+		this.deleted = true;
 		await this.todo.destroy();
 		// Search results are changed: ask the app to refresh searches
 		this.$emit( 'refresh' );
