@@ -5,18 +5,24 @@
 			<input class="new-todo" placeholder="What needs to be done?" autofocus />
 		</header>
 		<!-- This section should be hidden by default and shown when there are todos -->
-		<section class="main">
+		<section class="main" v-if="hasTodos">
 			<!-- See *ToDos cleaning* below -->
-			<input id="toggle-all" class="toggle-all" type="checkbox">
+			<input id="toggle-all" class="toggle-all" type="checkbox" v-model="areAllFinished">
 			<label for="toggle-all">Mark all as complete</label>
 
 			<ul class="todo-list">
+				<!-- Iterate on each ToDo. Because the `ID` depends on the source, -->
+				<!-- we have to specify which datasource's ID we should bind to.   -->
+				<todo-item-component
+					v-for="todo in displayedTodos.entities"
+					:todo="todo"
+					v-bind:key="todo.getId('main')"></todo-item-component>
 			</ul>
 		</section>
 		<!-- This footer should be hidden by default and shown when there are todos -->
-		<footer class="footer">
+		<footer class="footer" v-if="hasTodos">
 			<!-- This should be `0 items left` by default -->
-			<span class="todo-count"><strong>_</strong> _ left</span>
+			<span class="todo-count"><strong>{{leftTodos}}</strong> {{leftTodosLabel}} left</span>
 
 			<ul class="filters">
 				<li><a href="/#/" >All</a></li>
@@ -52,9 +58,19 @@ export default class AppComponent extends Vue {
 	// ## Boolean checking if all ToDos are finished
 	private allTodosFinished = false;
 
+	// Getter to use `areAllFinished` as v-model
+	public get areAllFinished(){
+		return this.allTodosFinished;
+	}
+
 	// ## Unfinished ToDos
 	// Used in the footer's text
 	public leftTodos = 0;
+
+	// Get the singular or plural text to display in the footer
+	public get leftTodosLabel(){
+		return this.leftTodos === 1 ? 'item' : 'items';
+	}
 
 
 	// # Search
