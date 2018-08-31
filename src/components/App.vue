@@ -189,12 +189,8 @@ export default class AppComponent extends Vue {
 
 	// # Initialization
 
-	// When starting up the app, insert fake data
+	// Once the component is mounted (and thus, the app is ready), apply the current route.
 	public async mounted(){
-		await ToDos.insertMany( [
-			{ label: 'Check the documentation', finished: true },
-			{ label: 'Finish the tutorial', finished: false },
-		] );
 		await this.onRouteChanged();
 	}
 }

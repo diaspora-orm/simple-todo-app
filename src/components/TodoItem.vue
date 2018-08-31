@@ -8,7 +8,7 @@
 			<label @dblclick="startEdit">{{label}}</label>
 			<button class="destroy" @click="removeTodo"></button>
 		</div>
-		<input class="edit" v-model="editedLabel" @blur="saveEdit" @keyup.enter="saveEdit" @keyup.esc="discardEdit" />
+		<input class="edit" v-model="editedLabel" @blur="saveEdit" @keyup.enter="saveEdit" @keyup.esc="discardEdit" ref="labelEdit">
 	</li>
 </template>
 
@@ -42,6 +42,12 @@ export default class TodoItemComponent extends Vue {
 	// # List element class flags
 	public isEditing = false;
 	public isHovered = false;
+
+	// # Component's DOM references. 
+	// Keep a reference to the `editedLabel` input that will be focused on edit
+	public $refs!: {
+		labelEdit: HTMLInputElement;
+	};
 
 
 	// # ToDo edition
@@ -81,6 +87,9 @@ export default class TodoItemComponent extends Vue {
 		}
 		this.isEditing = true;
 		this.editedLabel = this.todo.attributes.label;
+		// Defer to next tick, to let vuejs update the class
+		// and display the input before focusing the input
+		setTimeout( () => this.$refs.labelEdit.focus(), 0 );
 	}
 
 	// Exit the edit mode, set the ToDo label with the edited one & persist the entity in data store
