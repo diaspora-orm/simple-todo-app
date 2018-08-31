@@ -1,5 +1,6 @@
 <template>
-	<li>
+	<li
+		v-bind:class="{ completed: finished }">
 		<div class="view">
 			<input class="toggle" type="checkbox" v-model="finished">
 			<label>{{label}}</label>
