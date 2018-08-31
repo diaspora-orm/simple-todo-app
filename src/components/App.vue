@@ -44,6 +44,13 @@ import { Entity, Set } from '@diaspora/diaspora';
 import { ToDos, ITodo } from '../dataStore';
 import TodoItemComponent from './TodoItem.vue';
 
+// Display modes of the app. It is used to filter ToDos
+enum EDisplayMode{
+	FINISHED = 1,
+	UNFINISHED = 2,
+	ALL = EDisplayMode.FINISHED & EDisplayMode.UNFINISHED,
+}
+
 @Component( {
 	components: { TodoItemComponent },
 } )
@@ -82,21 +89,55 @@ export default class AppComponent extends Vue {
 
 	// # Search
 
+	// Current search mode, representing the status of the ToDos to display in the list
+	private displayMode: EDisplayMode = EDisplayMode.ALL;
+
 	// Refresh all ToDos searches.
 	private async refreshToDoSearches(){
 		let allTodos: Set<ITodo>;
 		let hasTodos: Entity<ITodo> | null;
 		let leftTodos: Set<ITodo>;
 
-		[allTodos, hasTodos, leftTodos] = await Promise.all( [
-			// Assign to `displayedTodos`, and check if all are finished for `allTodosFinished`
-			ToDos.findMany(),
-			// Check if null for `hasTodos`
-			ToDos.find(),
-			// Count the results for `leftTodos`
-			ToDos.findMany( { finished: false } ),
-		] );
-		this.displayedTodos = allTodos;
+		switch ( this.displayMode ) {
+			case EDisplayMode.ALL: {
+				[allTodos, hasTodos, leftTodos] = await Promise.all( [
+					// Assign to `displayedTodos`, and check if all are finished for `allTodosFinished`
+					ToDos.findMany(),
+					// Check if null for `hasTodos`
+					ToDos.find(),
+					// Count the results for `leftTodos`
+					ToDos.findMany( { finished: false } ),
+				] );
+				this.displayedTodos = allTodos;
+			}                      break;
+
+			case EDisplayMode.FINISHED: {
+				[this.displayedTodos, allTodos, hasTodos, leftTodos] = await Promise.all( [
+					// Displayed items
+					ToDos.findMany( { finished: true } ),
+					// Check if all are finished for `allTodosFinished`
+					ToDos.findMany(),
+					// Check if null for `hasTodos`
+					ToDos.find(),
+					// Count the results for `leftTodos`
+					ToDos.findMany( { finished: false } ),
+				] );
+			}                           break;
+
+			case EDisplayMode.UNFINISHED: {
+				[allTodos, hasTodos, leftTodos] = await Promise.all( [
+					// Check if all are finished for `allTodosFinished`
+					ToDos.findMany(),
+					// Check if null for `hasTodos`
+					ToDos.find(),
+					// Assign to `displayedTodos`, and count the results for `leftTodos`
+					ToDos.findMany( { finished: false } ),
+				] );
+				this.displayedTodos = leftTodos;
+			}                             break;
+
+			default: throw new Error( 'Invalid search mode' );
+		}
 
 		// Assign to properties requiring additionnal logic
 		this.allTodosFinished = allTodos
