@@ -1,12 +1,12 @@
 <template>
 	<li
-		v-bind:class="{ completed: finished }">
+		v-bind:class="{ completed: finished, editing: isEditing }">
 		<div class="view">
 			<input class="toggle" type="checkbox" v-model="finished">
-			<label>{{label}}</label>
+			<label @dblclick="startEdit">{{label}}</label>
 			<button class="destroy"></button>
 		</div>
-		<input class="edit" />
+		<input class="edit" v-model="editedLabel" @blur="saveEdit" @keyup.enter="saveEdit" @keyup.esc="discardEdit" />
 	</li>
 </template>
 
@@ -30,6 +30,9 @@ export default class TodoItemComponent extends Vue {
 		return this.todo.attributes.label;
 	}
 
+	// # List element class flags
+	public isEditing = false;
+
 
 	// # ToDo edition
 	
@@ -50,6 +53,42 @@ export default class TodoItemComponent extends Vue {
 		this.todo.persist().then( () => {
 			this.$emit( 'refresh' );
 		} );
+	}
+
+	// ## Label edition
+	// v-model property that contains the temporary label while editing
+	private editedLabel = '';
+
+	// When starting the edition, set the `isEditing` status to `true` and
+	// set the input value with the current ToDo's label
+	public startEdit(){
+		if ( !this.todo.attributes ){
+			throw new Error( 'Entity is in invalid state' );
+		}
+		this.isEditing = true;
+		this.editedLabel = this.todo.attributes.label;
+	}
+
+	// Exit the edit mode, set the ToDo label with the edited one & persist the entity in data store
+	public async saveEdit(){
+		if ( !this.todo.attributes ){
+			throw new Error( 'Entity is in invalid state' );
+		}
+		this.isEditing = false;
+
+		const editedLabel = this.editedLabel.trim();
+		// The label is changed: persist the ToDo
+		this.todo.attributes.label = editedLabel;
+		await this.todo.persist();
+	}
+	
+	// Exit the edit mode & reset the input value
+	public discardEdit(){
+		if ( !this.todo.attributes ){
+			throw new Error( 'Entity is in invalid state' );
+		}
+		this.isEditing = false;
+		this.editedLabel = this.todo.attributes.label;
 	}
 }
 </script>
