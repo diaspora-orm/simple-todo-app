@@ -32,7 +32,7 @@
 				<li><a href="/#/completed">Completed</a></li>
 			</ul>
 			<!-- Hidden if no completed items are left ↓ -->
-			<button class="clear-completed">Clear completed</button>
+			<button class="clear-completed" @click="clearCompleted">Clear completed</button>
 		</footer>
 	</div>
 </template>
@@ -120,6 +120,15 @@ export default class AppComponent extends Vue {
 		}
 		this.newTodoLabel = '';
 		await ToDos.insert( { label: todoLabel, finished: false } );
+		await this.refreshToDoSearches();
+	}
+
+
+	// # ToDos cleaning
+
+	// Delete all completed ToDos, then refresh the ToDos lists
+	public async clearCompleted(){
+		await ToDos.deleteMany( {finished: true} );
 		await this.refreshToDoSearches();
 	}
 

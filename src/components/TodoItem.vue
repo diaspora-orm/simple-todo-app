@@ -1,10 +1,12 @@
 <template>
 	<li
-		v-bind:class="{ completed: finished, editing: isEditing }">
+		v-bind:class="{ completed: finished, editing: isEditing, destroy: isHovered }"
+		@mouseover="isHovered = true"
+		@mouseout="isHovered = false">
 		<div class="view">
 			<input class="toggle" type="checkbox" v-model="finished">
 			<label @dblclick="startEdit">{{label}}</label>
-			<button class="destroy"></button>
+			<button class="destroy" @click="removeTodo"></button>
 		</div>
 		<input class="edit" v-model="editedLabel" @blur="saveEdit" @keyup.enter="saveEdit" @keyup.esc="discardEdit" />
 	</li>
@@ -32,6 +34,7 @@ export default class TodoItemComponent extends Vue {
 
 	// # List element class flags
 	public isEditing = false;
+	public isHovered = false;
 
 
 	// # ToDo edition
@@ -77,9 +80,14 @@ export default class TodoItemComponent extends Vue {
 		this.isEditing = false;
 
 		const editedLabel = this.editedLabel.trim();
-		// The label is changed: persist the ToDo
-		this.todo.attributes.label = editedLabel;
-		await this.todo.persist();
+		if ( editedLabel === '' ){
+			// The label is empty: remove the ToDo
+			await this.removeTodo();
+		} else {
+			// The label is changed: persist the ToDo
+			this.todo.attributes.label = editedLabel;
+			await this.todo.persist();
+		}
 	}
 	
 	// Exit the edit mode & reset the input value
@@ -89,6 +97,14 @@ export default class TodoItemComponent extends Vue {
 		}
 		this.isEditing = false;
 		this.editedLabel = this.todo.attributes.label;
+	}
+
+
+	// # ToDo removal
+	public async removeTodo(){
+		await this.todo.destroy();
+		// Search results are changed: ask the app to refresh searches
+		this.$emit( 'refresh' );
 	}
 }
 </script>
