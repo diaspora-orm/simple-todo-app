@@ -2,7 +2,7 @@
 	<div>
 		<header class="header">
 			<h1>todos</h1>
-			<input class="new-todo" placeholder="What needs to be done?" autofocus />
+			<input class="new-todo" placeholder="What needs to be done?" autofocus @keyup.enter="createTodo" v-model="newTodoLabel">
 		</header>
 		<!-- This section should be hidden by default and shown when there are todos -->
 		<section class="main" v-if="hasTodos">
@@ -98,6 +98,22 @@ export default class AppComponent extends Vue {
 			.value();
 		this.hasTodos = hasTodos !== null;
 		this.leftTodos = leftTodos.length;
+	}
+
+	// # ToDos creation
+
+	// Model property that contains the label of the ToDo we are creating
+	public newTodoLabel = '';
+	
+	// Trim the label, then inserts it in the store & refresh the ToDos lists
+	public async createTodo(){
+		const todoLabel = this.newTodoLabel.trim();
+		if(todoLabel === ''){
+			return;
+		}
+		this.newTodoLabel = '';
+		await ToDos.insert( { label: todoLabel, finished: false } );
+		await this.refreshToDoSearches();
 	}
 
 
