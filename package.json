@@ -8,7 +8,9 @@
     "dev": "npx webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "start": "npm run dev",
     "build": "node build/build.js",
-    "test": "echo 'Upcoming'"
+    "test": "echo 'Upcoming'",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "dependencies": {
     "@diaspora/diaspora": "^0.3.0",
@@ -17,7 +19,8 @@
     "todomvc-common": "^1.0.5",
     "vue": "^2.5.17",
     "vue-property-decorator": "^7.2.0",
-    "vue-router": "^3.0.1"
+    "vue-router": "^3.0.1",
+    "snyk": "^1.189.0"
   },
   "devDependencies": {
     "@babel/core": "^7.1.6",
@@ -71,5 +74,6 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ]
+  ],
+  "snyk": true
 }
