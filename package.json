@@ -15,7 +15,7 @@
     "@types/lodash": "^4.14.118",
     "todomvc-app-css": "^2.1.2",
     "todomvc-common": "^1.0.5",
-    "vue": "^2.5.17",
+    "vue": "^3.0.0",
     "vue-property-decorator": "^7.2.0",
     "vue-router": "^3.0.1"
   },
